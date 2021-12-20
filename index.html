@@ -2,10 +2,19 @@
 <html lang="en">
 <head>
     <title>Drawing Program</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self';">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
 <canvas></canvas>
+<div id="toolbar">
+    <input type="color" id="fillColor" title="Fill color">
+    <input type="color" id="strokeColor" title="Stroke color">
+    <input type="number" id="lineWidth" title="Line width" min="1" value="1">
+    <hr>
+    <button id="undo" title="Undo"><img src="img/undo.svg" alt="Undo" class="icon"></button>
+    <button id="redo" title="Redo"><img src="img/redo.svg" alt="Redo" class="icon"></button>
+</div>
 <script src="client.js" async defer></script>
 </body>
 </html>

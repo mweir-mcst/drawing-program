@@ -1,5 +1,43 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     width: 100vw;
     height: 100vh;
+}
+
+div {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    right: 0;
+    top: 0;
+    width: 50px;
+    height: 100vh;
+    border-left: solid black 1px;
+}
+
+input, button {
+    margin: 4px 0;
+    width: 75%;
+    background: none;
+    border: solid black 1px;
+}
+
+input[type="color"] {
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+hr {
+    width: 100%;
+    margin: 4px 0;
+}
+
+.icon {
+    height: 1em;
 }
