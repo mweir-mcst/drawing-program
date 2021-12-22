@@ -18,6 +18,11 @@ div {
     width: 50px;
     height: 100vh;
     border-left: solid black 1px;
+    overflow-y: auto;
+}
+
+div::-webkit-scrollbar {
+    display: none;
 }
 
 input, button {
@@ -31,6 +36,7 @@ input[type="color"] {
     padding: 0;
     margin: 0;
     border: none;
+    min-height: 27px;
 }
 
 hr {
