@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-packager ."
   },
   "keywords": [],
   "author": "",
@@ -13,6 +14,7 @@
     "electron-dl": "^3.3.0"
   },
   "devDependencies": {
-    "electron": "^16.0.5"
+    "electron": "^16.0.5",
+    "electron-packager": "^15.4.0"
   }
 }
