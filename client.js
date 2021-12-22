@@ -30,6 +30,14 @@ function ellipse(path, pointA, pointB) {
     )
 }
 
+function getPerfectMax() {
+    let sizeX = Math.max(Math.max(currentPos[0], mousePos[0]) - Math.min(currentPos[0], mousePos[0]), Math.max(currentPos[1], mousePos[1]) - Math.min(currentPos[1], mousePos[1]));
+    let sizeY = Math.max(Math.max(currentPos[0], mousePos[0]) - Math.min(currentPos[0], mousePos[0]), Math.max(currentPos[1], mousePos[1]) - Math.min(currentPos[1], mousePos[1]));
+    if (mousePos[0] - currentPos[0] < 0) sizeX *= -1;
+    if (mousePos[1] - currentPos[1] < 0) sizeY *= -1;
+    return [sizeX, sizeY];
+}
+
 function draw() {
     canvas.width = innerWidth - 50;
     canvas.height = innerHeight;
@@ -49,14 +57,6 @@ function draw() {
         ctx.lineWidth = shape.lineWidth;
         ctx.fill(shape.path);
         ctx.stroke(shape.path);
-    }
-
-    function getPerfectMax() {
-        let sizeX = Math.max(Math.abs(mousePos[0] - currentPos[0]), Math.abs(mousePos[1] - currentPos[1]));
-        let sizeY = Math.max(Math.abs(mousePos[0] - currentPos[0]), Math.abs(mousePos[1] - currentPos[1]));
-        if (mousePos[0] - currentPos[0] === sizeX * -1) sizeX *= -1;
-        if (mousePos[1] - currentPos[1] === sizeY * -1) sizeY *= -1;
-        return [sizeX, sizeY];
     }
 
     ctx.fillStyle = fillColorInput.value;
@@ -150,12 +150,22 @@ canvas.addEventListener("mouseup", () => {
             break;
         case "rect":
             path = new Path2D();
-            path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+            if (shiftDown) {
+                let size = getPerfectMax();
+                path.rect(...currentPos, size[0], size[1]);
+            } else {
+                path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+            }
             path.closePath();
             break;
         case "ellipse":
             path = new Path2D();
-            ellipse(path, currentPos, mousePos);
+            if (shiftDown) {
+                let size = getPerfectMax();
+                ellipse(path, currentPos, [currentPos[0] + size[0], currentPos[1] + size[1]]);
+            } else {
+                ellipse(path, currentPos, mousePos);
+            }
             path.closePath();
             break;
     }
