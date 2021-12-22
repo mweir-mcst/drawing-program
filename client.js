@@ -6,6 +6,7 @@ const strokeColorInput = document.querySelector("#strokeColor");
 const lineWidthInput = document.querySelector("#lineWidth");
 const undoButton = document.querySelector("#undo");
 const redoButton = document.querySelector("#redo");
+const saveButton = document.querySelector("#save");
 const penButton = document.querySelector("#pen");
 const lineButton = document.querySelector("#line");
 const rectButton = document.querySelector("#rect");
@@ -32,6 +33,9 @@ function draw() {
     canvas.width = innerWidth - 50;
     canvas.height = innerHeight;
 
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     for (const shape of savedShapes.concat(drawingPaths.map(path => ({
         type: "pen",
         fillColor: fillColorInput.value,
@@ -46,6 +50,7 @@ function draw() {
         ctx.stroke(shape.path);
     }
 
+    ctx.fillStyle = fillColorInput.value;
     ctx.strokeStyle = strokeColorInput.value;
 
     if (mousePos === lastMousePos) return;
@@ -85,6 +90,13 @@ function undo()  {
 
 function redo() {
     if (undoneShapes.length > 0) savedShapes.push(undoneShapes.pop());
+}
+
+function save() {
+    canvas.toBlob(async blob => {
+        const file = await download(URL.createObjectURL(blob));
+        alert(`Saved image to ${file}`);
+    });
 }
 
 setInterval(draw, 0);
@@ -141,12 +153,26 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mousemove", e => mousePos = [e.x, e.y]);
 
 onkeydown = e => {
-    if (e.ctrlKey && e.key === "z") undo();
-    if (e.ctrlKey && e.key === "y") redo();
+    if (!e.ctrlKey) return;
+    switch (e.key) {
+        case "z":
+            e.preventDefault();
+            undo();
+            break;
+        case "y":
+            e.preventDefault();
+            redo();
+            break;
+        case "s":
+            e.preventDefault();
+            save();
+            break;
+    }
 }
 
 undoButton.addEventListener("click", undo);
 redoButton.addEventListener("click", redo);
+saveButton.addEventListener("click", save);
 
 penButton.addEventListener("click", () => shapeType = "pen");
 lineButton.addEventListener("click", () => shapeType = "line");
