@@ -16,6 +16,7 @@ let mousePos = [], lastMousePos = [], mouseDown = false;
 let savedShapes = [], drawingPaths = [], undoneShapes = []
 let currentPath, currentPos;
 let shapeType = "pen";
+let shiftDown = false;
 
 function ellipse(path, pointA, pointB) {
     path.ellipse(
@@ -50,6 +51,14 @@ function draw() {
         ctx.stroke(shape.path);
     }
 
+    function getPerfectMax() {
+        let sizeX = Math.max(Math.abs(mousePos[0] - currentPos[0]), Math.abs(mousePos[1] - currentPos[1]));
+        let sizeY = Math.max(Math.abs(mousePos[0] - currentPos[0]), Math.abs(mousePos[1] - currentPos[1]));
+        if (mousePos[0] - currentPos[0] === sizeX * -1) sizeX *= -1;
+        if (mousePos[1] - currentPos[1] === sizeY * -1) sizeY *= -1;
+        return [sizeX, sizeY];
+    }
+
     ctx.fillStyle = fillColorInput.value;
     ctx.strokeStyle = strokeColorInput.value;
 
@@ -71,10 +80,20 @@ function draw() {
                     path.lineTo(...mousePos);
                     break;
                 case "rect":
-                    path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+                    if (shiftDown) {
+                        let size = getPerfectMax();
+                        path.rect(...currentPos, size[0], size[1]);
+                    } else {
+                        path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+                    }
                     break;
                 case "ellipse":
-                    ellipse(path, currentPos, mousePos);
+                    if (shiftDown) {
+                        let size = getPerfectMax();
+                        ellipse(path, currentPos, [currentPos[0] + size[0], currentPos[1] + size[1]]);
+                    } else {
+                        ellipse(path, currentPos, mousePos);
+                    }
                     break;
             }
             path.closePath();
@@ -153,6 +172,7 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mousemove", e => mousePos = [e.x, e.y]);
 
 onkeydown = e => {
+    if (e.key === "Shift") shiftDown = true;
     if (!e.ctrlKey) return;
     switch (e.key) {
         case "z":
@@ -168,6 +188,10 @@ onkeydown = e => {
             save();
             break;
     }
+}
+
+onkeyup = e => {
+    if (e.key === "Shift") shiftDown = false;
 }
 
 undoButton.addEventListener("click", undo);
