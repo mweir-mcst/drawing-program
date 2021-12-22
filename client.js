@@ -16,6 +16,7 @@ let mousePos = [], lastMousePos = [], mouseDown = false;
 let savedShapes = [], drawingPaths = [], undoneShapes = []
 let currentPath, currentPos;
 let shapeType = "pen";
+let shiftDown = false;
 
 function ellipse(path, pointA, pointB) {
     path.ellipse(
@@ -27,6 +28,14 @@ function ellipse(path, pointA, pointB) {
         0,
         Math.PI * 2
     )
+}
+
+function getPerfectMax() {
+    let sizeX = Math.max(Math.max(currentPos[0], mousePos[0]) - Math.min(currentPos[0], mousePos[0]), Math.max(currentPos[1], mousePos[1]) - Math.min(currentPos[1], mousePos[1]));
+    let sizeY = Math.max(Math.max(currentPos[0], mousePos[0]) - Math.min(currentPos[0], mousePos[0]), Math.max(currentPos[1], mousePos[1]) - Math.min(currentPos[1], mousePos[1]));
+    if (mousePos[0] - currentPos[0] < 0) sizeX *= -1;
+    if (mousePos[1] - currentPos[1] < 0) sizeY *= -1;
+    return [sizeX, sizeY];
 }
 
 function draw() {
@@ -71,10 +80,20 @@ function draw() {
                     path.lineTo(...mousePos);
                     break;
                 case "rect":
-                    path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+                    if (shiftDown) {
+                        let size = getPerfectMax();
+                        path.rect(...currentPos, size[0], size[1]);
+                    } else {
+                        path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+                    }
                     break;
                 case "ellipse":
-                    ellipse(path, currentPos, mousePos);
+                    if (shiftDown) {
+                        let size = getPerfectMax();
+                        ellipse(path, currentPos, [currentPos[0] + size[0], currentPos[1] + size[1]]);
+                    } else {
+                        ellipse(path, currentPos, mousePos);
+                    }
                     break;
             }
             path.closePath();
@@ -131,12 +150,22 @@ canvas.addEventListener("mouseup", () => {
             break;
         case "rect":
             path = new Path2D();
-            path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+            if (shiftDown) {
+                let size = getPerfectMax();
+                path.rect(...currentPos, size[0], size[1]);
+            } else {
+                path.rect(...currentPos, mousePos[0] - currentPos[0], mousePos[1] - currentPos[1]);
+            }
             path.closePath();
             break;
         case "ellipse":
             path = new Path2D();
-            ellipse(path, currentPos, mousePos);
+            if (shiftDown) {
+                let size = getPerfectMax();
+                ellipse(path, currentPos, [currentPos[0] + size[0], currentPos[1] + size[1]]);
+            } else {
+                ellipse(path, currentPos, mousePos);
+            }
             path.closePath();
             break;
     }
@@ -153,6 +182,7 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mousemove", e => mousePos = [e.x, e.y]);
 
 onkeydown = e => {
+    if (e.key === "Shift") shiftDown = true;
     if (!e.ctrlKey) return;
     switch (e.key) {
         case "z":
@@ -168,6 +198,10 @@ onkeydown = e => {
             save();
             break;
     }
+}
+
+onkeyup = e => {
+    if (e.key === "Shift") shiftDown = false;
 }
 
 undoButton.addEventListener("click", undo);
